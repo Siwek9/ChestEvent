@@ -5,7 +5,5 @@ author: siwek9
 commands:
   event:
     description: This is a demo command.
-    usage: /<command> [player]
-    permission: chestevent.command
-    permission-message: You don't have <permission>
+    usage: /<command> <create | remove | edit | info | start> <Event Name> [Json options]
     
