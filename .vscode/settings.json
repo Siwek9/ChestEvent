@@ -2,6 +2,12 @@
 	"java.compile.nullAnalysis.mode": "automatic",
 	"java.configuration.updateBuildConfiguration": "interactive",
 	"cSpell.ignoreWords": [
-		"chestevent"
+		"chestevent",
+		"loottables"
+	],
+	"cSpell.words": [
+		"Bukkit",
+		"Lootable",
+		"MINECRAFT"
 	]
 }

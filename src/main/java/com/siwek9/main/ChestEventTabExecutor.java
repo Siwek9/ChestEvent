@@ -9,22 +9,59 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 
 public class ChestEventTabExecutor implements TabExecutor {
-	private final ChestEvent plugin;
+
+	ChestEventFile allEvents;
+	// private final ChestEvent plugin;
 
 	public ChestEventTabExecutor(ChestEvent plugin) {
-		this.plugin = plugin;
+		// this.plugin = plugin;
 	}
+	
+	// /event create NowyEvent {Date:"19.12.2022",Time:"19:00",MainLootTable:"dobry_loot_table",ExtraLootTable:"custom_loot_table"}
 
+	String[] opCommands = {"create", "edit", "remove", "start"};
+	String[] playerCommands = {"info"};
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		plugin.getLogger().info("Użyłeś komendy, wiesz? Fajnie co nie? Nic ona nie robi ;)");
-		return true;
-	}
+		sender.sendMessage(!cmd.getName().equals("event") ? "true" : "false");
+		if (!cmd.getName().equals("event")) return false;
+		
+		String[] commandsToChoose;
+		// create a array with first arguments that sender can use 
+		if (sender.isOp()) {
+			commandsToChoose = StringConcat(opCommands, playerCommands);
+		}
+		else {
+			// System.out.println("witam pana");
+			commandsToChoose = playerCommands.clone();
+		}
 
+		if (args.length < 1) {
+			sender.sendMessage("§cUnknown or incomplete command, see below for error\n§7" + label + "§c§o<--[HERE]");
+			return true;
+		}
+
+		if (!Arrays.asList(commandsToChoose).contains(args[0])) {
+			if (Arrays.asList(opCommands).contains(args[0])) {
+				sender.sendMessage("§cYou have no permission to use this command!");
+				return true;
+			}
+			else {
+				String allArguments = new String();
+				for (String arg : args) {
+					allArguments += arg + " ";
+				} 
+				allArguments = allArguments.substring(0, allArguments.length() - 1);
+				sender.sendMessage("§cUnknown or incomplete command, see below for error\n§7" + label + " §c§n" + allArguments + "§r§c§o<--[HERE]");
+				return true;
+			}
+		}
+
+		if ()
+		return true;
+    }
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		String[] opCommands = {"create", "edit", "remove", "start"};
-		String[] playerCommands = {"info"};
 		String[] commandsToChoose;
 
 		if (sender.isOp()) {

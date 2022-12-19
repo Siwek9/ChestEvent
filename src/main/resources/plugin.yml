@@ -1,9 +1,10 @@
 name: ChestEvent
 main: com.siwek9.main.ChestEvent
 version: 0.1.0
+api-version: 1.19
 author: siwek9
 commands:
   event:
     description: This is a demo command.
-    usage: /<command> <create | remove | edit | info | start> <Event Name> [Json options]
+    usage: §c<command> <create | remove | edit | info | start> <Event Name> [Json options]
     

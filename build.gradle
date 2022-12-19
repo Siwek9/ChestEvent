@@ -17,15 +17,12 @@ repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
-    maven {
-        url "https://hub.spigotmc.org/nexus/content/repositories/public/"
-    }
+    maven { url "https://hub.spigotmc.org/nexus/content/repositories/public/" }
 }
 
 dependencies {
     implementation 'org.bukkit:bukkit:1.15.2-R0.1-SNAPSHOT'
     implementation 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
-
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
