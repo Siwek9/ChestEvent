@@ -6,3 +6,6 @@ build
 
 # Ignore bin file because of yes
 bin
+
+# Ignore .vscode files
+.vscode
