@@ -1,17 +1,19 @@
 package com.siwek9.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 // import java.io.IOException;
 
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 // import org.bukkit.configuration.file.YamlConfiguration;
 // import org.bukkit.configuration.InvalidConfigurationException;
 
-import com.google.gson.JsonObject;
+// import com.google.gson.JsonObject;
 
 // import me.lucko.commodore.Commodore;
 // import me.lucko.commodore.CommodoreProvider;
@@ -21,24 +23,46 @@ import com.google.gson.JsonObject;
 public final class ChestEvent extends JavaPlugin {
 
 	public FileConfiguration config;
+
 	public String lootTablesDirectory = "LootTables";
 
+	public YamlConfiguration events;
+	public File eventsFile;
+
+	List<ChestEventFile> listOfEvents;
 
 	@Override
 	public void onEnable() {
+		
+		
+		
 		if (!getDataFolder().exists()) {
 			getDataFolder().mkdir();
 		}
-
+		
 		config = this.getConfig();
-
+		
 		if (!new File(getDataFolder(), lootTablesDirectory).exists()) {
 			new File(getDataFolder(), lootTablesDirectory).mkdir();
 			getLogger().info("Create \"LootTables\" directory where you should put your custom LootTables.");
 			getLogger().info("You can create custom LootTable in this generator: https://misode.github.io/loot-table/");
 		}
-	
+		
 		setDefaultConfig();
+
+		listOfEvents = new ArrayList<>();
+
+		eventsFile = new File(this.getDataFolder(), "events.yaml");
+		try {
+			eventsFile.createNewFile();
+			events = YamlConfiguration.loadConfiguration(eventsFile);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (String eventFromFile : events.getKeys(false)) {
+			listOfEvents.add(new ChestEventFile(eventFromFile, events.getConfigurationSection(eventFromFile)));
+		}
 	
 		PluginCommand eventCommand = this.getCommand("event");
 		eventCommand.setExecutor(new ChestEventTabExecutor(this));
@@ -58,11 +82,11 @@ public final class ChestEvent extends JavaPlugin {
 		// }
 	}
 
-	JsonObject ReadLootTableFile(String lootTableName) {
-		JsonObject toReturn = new JsonObject();
+	// JsonObject ReadLootTableFile(String lootTableName) {
+	// 	JsonObject toReturn = new JsonObject();
 
-		return toReturn;
-	}
+	// 	return toReturn;
+	// }
 
 
 	List<String> getLootTablesFromDirectory(String directoryName) {
