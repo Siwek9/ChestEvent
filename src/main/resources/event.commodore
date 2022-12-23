@@ -1,0 +1,17 @@
+event {
+	create {
+		EventName brigadier:string;
+	}
+	edit {
+		EventName brigadier:string;
+	}
+	info {
+		EventName brigadier:string;
+	}
+	remove {
+		EventName brigadier:string;
+	}
+	start {
+		EventName brigadier:string;
+	}
+}

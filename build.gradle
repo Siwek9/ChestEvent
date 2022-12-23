@@ -9,6 +9,7 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+	id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 version '0.1.0'
@@ -18,13 +19,25 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     jcenter()
     maven { url "https://hub.spigotmc.org/nexus/content/repositories/public/" }
+	maven { url "https://libraries.minecraft.net" }
 }
 
 dependencies {
     implementation 'org.bukkit:bukkit:1.15.2-R0.1-SNAPSHOT'
     implementation 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
+	implementation 'me.lucko:commodore:2.2'
+
+
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+}
+
+shadowJar {
+	dependencies {
+		exclude(dependency('com.mojang:brigadier'))
+	}
+
+	relocate 'me.lucko.commodore', 'com.siwek9.main.ChestEvent.commodore'
 }
 
 testing {

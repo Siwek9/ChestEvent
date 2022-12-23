@@ -1,26 +1,27 @@
 package com.siwek9.main;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+// import java.io.IOException;
 
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.loot.LootTable;
 import org.bukkit.plugin.java.JavaPlugin;
+// import org.bukkit.configuration.file.YamlConfiguration;
+// import org.bukkit.configuration.InvalidConfigurationException;
 
 import com.google.gson.JsonObject;
 
-public final class ChestEvent extends JavaPlugin {
-	
-	public FileConfiguration config;
-	public File eventsFile;
-	public String lootTablesDirectory = "LootTables";
-	public List<String> allLootTables;
-	JsonObject LootTableFileContent;
+// import me.lucko.commodore.Commodore;
+// import me.lucko.commodore.CommodoreProvider;
+// import me.lucko.commodore.CommodoreProvider;
+// import me.lucko.commodore.file.CommodoreFileReader;
 
-	LootTable betterChest;
-	LootTable worseChest;
+public final class ChestEvent extends JavaPlugin {
+
+	public FileConfiguration config;
+	public String lootTablesDirectory = "LootTables";
 
 
 	@Override
@@ -29,34 +30,32 @@ public final class ChestEvent extends JavaPlugin {
 			getDataFolder().mkdir();
 		}
 
-		// LootTable lootTable2 = getServer().getLootTable(null);
-		// lootTable2.load(new File("jol"));
-
 		config = this.getConfig();
-
-		eventsFile = new File(getDataFolder(), "event.yml");
-		try {
-			if (eventsFile.createNewFile()) {
-				getLogger().info("Create \"event.yml\" .");
-			}
-		}
-		catch(IOException e) {
-			System.out.println("An error occurred");
-			e.printStackTrace();
-		}
 
 		if (!new File(getDataFolder(), lootTablesDirectory).exists()) {
 			new File(getDataFolder(), lootTablesDirectory).mkdir();
 			getLogger().info("Create \"LootTables\" directory where you should put your custom LootTables.");
 			getLogger().info("You can create custom LootTable in this generator: https://misode.github.io/loot-table/");
 		}
-		
+	
 		setDefaultConfig();
-		allLootTables = getLootTablesFromDirectory(lootTablesDirectory);
+	
+		PluginCommand eventCommand = this.getCommand("event");
+		eventCommand.setExecutor(new ChestEventTabExecutor(this));
 
-		
-		
-		this.getCommand("event").setExecutor(new ChestEventTabExecutor(this));
+		// if (CommodoreProvider.isSupported()) {
+		// 	Commodore commodore = CommodoreProvider.getCommodore(this);
+		// 	LiteralCommandNode<?> eventArguments;
+
+		// 	try {
+		// 		eventArguments = CommodoreFileReader.INSTANCE.parse(getResource("event.commodore"));
+		// 		commodore.register(eventCommand, eventArguments);
+		// 	}
+		// 	catch (IOException e) {
+		// 		System.out.println("time.commodore file not found.");
+		// 	}
+
+		// }
 	}
 
 	JsonObject ReadLootTableFile(String lootTableName) {
@@ -82,7 +81,7 @@ public final class ChestEvent extends JavaPlugin {
 	}
 	
 	void setDefaultConfig() {
-		if(!config.contains("Default_AlwaysManualStartEvent", false)) {
+		if(!config.contains("Defaults.Date", false)) {
 			getLogger().info("Create \"config.yml\".");
 		}
 		config.options().header("date pattern \"dd.mm.yyyy\"\n" +
@@ -92,6 +91,8 @@ public final class ChestEvent extends JavaPlugin {
 								"when ForceManualStart is set to true, the event should start send message to all op players, asking them to start the event\n" +
 								"TimeOfReminder is in a minutes (set value to 0 to turn off the reminder\n");
 
+		config.addDefault("RadiusOfEvent", 1200);
+		config.addDefault("TicksPerRefresh", 100);
 		config.addDefault("Defaults.Date", "now");
 		config.addDefault("Defaults.Time", "now");
 		config.addDefault("Defaults.MainLootTable", "default_main_loot_table");
