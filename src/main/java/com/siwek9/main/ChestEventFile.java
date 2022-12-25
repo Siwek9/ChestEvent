@@ -2,10 +2,9 @@ package com.siwek9.main;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-
-import javax.swing.text.DateFormatter;
 
 // import java.io.File;
 // import java.io.IOException;
@@ -28,51 +27,28 @@ public class ChestEventFile {
 		new TokenType("MainLootTable", STRING_TYPE),
 		new TokenType("ExtraLootTable", STRING_TYPE),
 		new TokenType("NumberOfMainChests", INTEGER_TYPE),
+		new TokenType("NumberOfExtraChests", INTEGER_TYPE),
 		new TokenType("Secret", BOOLEAN_TYPE),
 		new TokenType("ForceManualStart", BOOLEAN_TYPE),
 		new TokenType("TimeOfReminder", INTEGER_TYPE),
+		new TokenType("TimeOfLock", INTEGER_TYPE),
 		new TokenType("ReminderMessage", STRING_TYPE),
 		new TokenType("EventMessage", STRING_TYPE),	
 	};
 
 	String Name;
+	LocalDateTime dateTime;
 
-	LocalDate Date;
-	LocalTime Time;
-
-	private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d.MM.yyyy");
-
-	private String GetDataDirectory(String data) {
-		return this.Name + "." + data;
-	}
-
-	void saveEventsFile() {
-		try {
-			plugin.events.save(plugin.eventsFile);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
+	
 	ChestEventFile(String Name) {
 		this.Name = Name;
-
-		if (plugin.config.getString("Defaults.Date").equals("now"))
-			this.Date = LocalDate.now();
-		else
-			this.Date = LocalDate.parse(plugin.config.getString("Defaults.Date"), dateFormatter);
-
-		if (plugin.config.getString("Defaults.Time").equals("now"))
-			this.Time = LocalTime.now();
-		else
-			this.Time = LocalTime.parse(plugin.config.getString("Defaults.Time"));
 
 		for (TokenType token : eventVariables) {
 			plugin.events.set(GetDataDirectory(token.Name), plugin.config.get("Defaults." + token.Name));
 		}
 		saveEventsFile();
-		System.out.println(plugin.events.get(GetDataDirectory("Secret")).getClass());
+		
+		dateTime = GetDateTimeFromStrings(plugin.events.getString(GetDataDirectory("Date")), plugin.events.getString(GetDataDirectory("Time")));
 	}
 
 	ChestEventFile(String Name, ConfigurationSection eventSection) {
@@ -86,17 +62,9 @@ public class ChestEventFile {
 		}
 		saveEventsFile();
 		
-		if (plugin.events.getString(GetDataDirectory("Date")).equals("now"))
-			this.Date = LocalDate.now();
-		else
-			this.Date = LocalDate.parse(plugin.events.getString(GetDataDirectory("Date")), dateFormatter);
-
-		if (plugin.events.getString(GetDataDirectory("Time")).equals("now"))
-			this.Time = LocalTime.now();
-		else
-			this.Time = LocalTime.parse(plugin.events.getString(GetDataDirectory("Time")));
+		dateTime = GetDateTimeFromStrings(plugin.events.getString(GetDataDirectory("Date")), plugin.events.getString(GetDataDirectory("Time")));
 	}	
-
+	
 	ChestEventFile(String Name, JsonObject eventData) {
 		this.Name = Name;
 		for (TokenType token : eventVariables) {
@@ -116,17 +84,9 @@ public class ChestEventFile {
 		}
 		saveEventsFile();
 
-		if (plugin.events.getString(GetDataDirectory("Date")).equals("now"))
-			this.Date = LocalDate.now();
-		else
-			this.Date = LocalDate.parse(plugin.events.getString(GetDataDirectory("Date")), dateFormatter);
-
-		if (plugin.events.getString(GetDataDirectory("Time")).equals("now"))
-			this.Time = LocalTime.now();
-		else
-			this.Time = LocalTime.parse(plugin.events.getString(GetDataDirectory("Time")));
+		dateTime = GetDateTimeFromStrings(plugin.events.getString(GetDataDirectory("Date")), plugin.events.getString(GetDataDirectory("Time")));
 	}
-
+	
 	ChestEventFile(ChestEventFile OldCopy, JsonObject NewData) {
 		this.Name = OldCopy.Name;
 		for (TokenType token : eventVariables) {
@@ -144,22 +104,41 @@ public class ChestEventFile {
 		}
 		saveEventsFile();
 		
-		if (plugin.events.getString(GetDataDirectory("Date")).equals("now"))
-			this.Date = LocalDate.now();
-		else
-			this.Date = LocalDate.parse(plugin.events.getString(GetDataDirectory("Date")), dateFormatter);
+		dateTime = GetDateTimeFromStrings(plugin.events.getString(GetDataDirectory("Date")), plugin.events.getString(GetDataDirectory("Time")));
+		
+	}
+	
+	private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("d.MM.yyyy");
 
-		if (plugin.events.getString(GetDataDirectory("Time")).equals("now"))
-			this.Time = LocalTime.now();
-		else
-			this.Time = LocalTime.parse(plugin.events.getString(GetDataDirectory("Time")));
+	private LocalDateTime GetDateTimeFromStrings(String Date, String Time) {
+		LocalDate tempDate;
+		LocalTime tempTime;
 
+		if (Date.equals("now"))
+			tempDate = LocalDate.now();
+		else
+			tempDate = LocalDate.parse(plugin.events.getString(GetDataDirectory("Date")), dateFormatter);
+
+		if (Time.equals("now"))
+			tempTime = LocalTime.now();
+		else
+			tempTime = LocalTime.parse(plugin.events.getString(GetDataDirectory("Time")));
+
+		return LocalDateTime.of(tempDate, tempTime);
 	}
 
+	private String GetDataDirectory(String data) {
+		return this.Name + "." + data;
+	}
 
-	// void deleteEvent() {
-	// 	System.out.print("usunieto event");
-	// }
+	void saveEventsFile() {
+		try {
+			plugin.events.save(plugin.eventsFile);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 class TokenType {

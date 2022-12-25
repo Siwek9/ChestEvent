@@ -2,6 +2,7 @@ package com.siwek9.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public final class ChestEvent extends JavaPlugin {
 		int id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				for (ChestEventFile chestEventFile : listOfEvents) {
-					if (chestEventFile.Date)
+					if ()
 				}
 			}
 		}, 0, config.getInt("TicksPerRefresh"));
@@ -125,7 +126,8 @@ public final class ChestEvent extends JavaPlugin {
 								"place your loot tables in \"loottable\" folder\n" +
 								"when Secret value is set to true users will not get any message about the event\n" +
 								"when ForceManualStart is set to true, the event should start send message to all op players, asking them to start the event\n" +
-								"TimeOfReminder is in a minutes (set value to 0 to turn off the reminder\n");
+								"TimeOfReminder is in a minutes (set value to 0 to turn off the reminder)\n" +
+								"TimeOfLock is in a ticks (set value to 0 to turn off the reminder)\n");
 
 		config.addDefault("RadiusOfEvent", 1200);
 		config.addDefault("TicksPerRefresh", 100);
@@ -138,6 +140,7 @@ public final class ChestEvent extends JavaPlugin {
 		config.addDefault("Defaults.Secret", false);
 		config.addDefault("Defaults.ForceManualStart", false);
 		config.addDefault("Defaults.TimeOfReminder", 30);
+		config.addDefault("Defaults.TimeOfLock", 6000);
 		config.addDefault("Defaults.ReminderMessage", "The Event {EventName} will start in {TimeOfReminder} minutes");
 		config.addDefault("Defaults.EventMessage", "The Event {EventName} starts now! Chest are generated at coords {ChestsCords}. Good luck getting them ;)");
 		config.options().copyDefaults(true);
