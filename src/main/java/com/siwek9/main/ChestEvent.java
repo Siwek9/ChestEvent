@@ -2,10 +2,13 @@ package com.siwek9.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 // import java.io.IOException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -66,6 +69,15 @@ public final class ChestEvent extends JavaPlugin {
 	
 		PluginCommand eventCommand = this.getCommand("event");
 		eventCommand.setExecutor(new ChestEventTabExecutor(this));
+
+
+		int id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			public void run() {
+				for (ChestEventFile chestEventFile : listOfEvents) {
+					if (chestEventFile.Date)
+				}
+			}
+		}, 0, config.getInt("TicksPerRefresh"));
 
 		// if (CommodoreProvider.isSupported()) {
 		// 	Commodore commodore = CommodoreProvider.getCommodore(this);
