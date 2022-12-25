@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ChestEvent extends JavaPlugin {
 
+
 	public FileConfiguration config;
 
 	public String lootTablesDirectory = "LootTables";
@@ -75,7 +76,21 @@ public final class ChestEvent extends JavaPlugin {
 		int id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				for (ChestEventFile chestEventFile : listOfEvents) {
-					if ()
+					if (chestEventFile.isStarted == true) return;
+					
+					if (chestEventFile.dateTime.isBefore(LocalDateTime.now())) {
+
+						if (chestEventFile.eventWasBefore == -1)
+							chestEventFile.start();
+						else if (chestEventFile.eventWasBefore == 0)
+							chestEventFile.sendStartMessage();
+						
+						chestEventFile.eventWasBefore = 1;
+
+					}
+					else {
+						chestEventFile.eventWasBefore = -1;
+					} 
 				}
 			}
 		}, 0, config.getInt("TicksPerRefresh"));

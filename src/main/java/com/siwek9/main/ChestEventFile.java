@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 
 import com.google.gson.JsonObject;
 
@@ -38,6 +39,9 @@ public class ChestEventFile {
 
 	String Name;
 	LocalDateTime dateTime;
+
+	byte eventWasBefore = 0;
+	boolean isStarted = false;
 
 	
 	ChestEventFile(String Name) {
@@ -138,6 +142,26 @@ public class ChestEventFile {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void start() {
+		if (plugin.events.getBoolean(GetDataDirectory("ForceManualStart")) == true) {
+			sendStartMessage();
+		}
+		else {
+			System.out.println("siema");
+			isStarted = true;
+		}
+	}
+
+	public void sendStartMessage() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (player.isOp()) {
+				player.sendMessage("§eThe event §l§c" + Name + "§r§e should start now!\nType §2§o/event start " + Name + "§r§e to start it.");
+				System.out.println("The event " + Name + " should start now!\nType \"event start " + Name + "\" to start it.");
+			}
+		}
+		
 	}
 }
 
