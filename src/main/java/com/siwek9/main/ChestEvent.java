@@ -2,9 +2,7 @@ package com.siwek9.main;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 // import java.io.IOException;
@@ -35,6 +33,8 @@ public final class ChestEvent extends JavaPlugin {
 	public File eventsFile;
 
 	List<ChestEventFile> listOfEvents;
+
+	int ChestEventID;
 
 	@Override
 	public void onEnable() {
@@ -73,7 +73,7 @@ public final class ChestEvent extends JavaPlugin {
 		eventCommand.setExecutor(new ChestEventTabExecutor(this));
 
 
-		int id = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+		ChestEventID = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				for (ChestEventFile chestEventFile : listOfEvents) {
 					if (chestEventFile.isStarted == true) return;
@@ -110,27 +110,45 @@ public final class ChestEvent extends JavaPlugin {
 		// }
 	}
 
+	@Override
+	public void onDisable() {
+		Bukkit.getServer().getScheduler().cancelTask(ChestEventID);
+	}
+
 	// JsonObject ReadLootTableFile(String lootTableName) {
 	// 	JsonObject toReturn = new JsonObject();
 
 	// 	return toReturn;
 	// }
 
-
-	List<String> getLootTablesFromDirectory(String directoryName) {
-		List<String> ListOfLootTables = new ArrayList<>();
-		
-		File folder = new File(getDataFolder(), directoryName);
-		File[] listOfFiles = folder.listFiles();
-
-		for (File file : listOfFiles) {
-			String nameOfFile = file.getName();
-			nameOfFile = nameOfFile.substring(0, nameOfFile.lastIndexOf("."));
-			ListOfLootTables.add(nameOfFile);
+	public void deleteNotUsedEvents() {
+		for (int i = 0; i < listOfEvents.size(); i++) {
+			if (this.events.contains(listOfEvents.get(i).Name)) {
+				listOfEvents.remove(i);
+				i--;
+			}
 		}
-		
-		return ListOfLootTables;
+		// for (ChestEventFile chestEventFile : listOfEvents) {
+		// 	if (!this.events.contains(chestEventFile.Name))
+		// 	list
+		// }
 	}
+
+
+	// List<String> getLootTablesFromDirectory(String directoryName) {
+	// 	List<String> ListOfLootTables = new ArrayList<>();
+		
+	// 	File folder = new File(getDataFolder(), directoryName);
+	// 	File[] listOfFiles = folder.listFiles();
+
+	// 	for (File file : listOfFiles) {
+	// 		String nameOfFile = file.getName();
+	// 		nameOfFile = nameOfFile.substring(0, nameOfFile.lastIndexOf("."));
+	// 		ListOfLootTables.add(nameOfFile);
+	// 	}
+		
+	// 	return ListOfLootTables;
+	// }
 	
 	void setDefaultConfig() {
 		if(!config.contains("Defaults.Date", false)) {

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -20,7 +21,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.loot.LootTables;
 
 import com.google.gson.JsonObject;
 
@@ -45,7 +45,7 @@ public class ChestEventFile {
 		new TokenType("ReminderMessage", STRING_TYPE),
 		new TokenType("EventMessage", STRING_TYPE),	
 	};
-	private final static int[] eventRemindersTime = {120, 60, 30, 15, 10, 5, 4, 3, 2, 1};
+	// private final static int[] eventRemindersTime = {120, 60, 30, 15, 10, 5, 4, 3, 2, 1};
 
 	String Name;
 	LocalDateTime dateTime;
@@ -223,6 +223,7 @@ public class ChestEventFile {
 
 	int timerStart;
 	int bedrockTimer;
+	int chestOpenListener;
 	int timeToDestroyBedrock;
 
 	public void start() {
@@ -241,6 +242,20 @@ public class ChestEventFile {
 						chestsLocation = createChestsLocation();
 						plugin.events.set(GetDataDirectory("chestsLocation"), locationsToString(chestsLocation));
 						saveEventsFile();
+						messageToAllPlayers("Wydarzenie " + Name + " rozpoczęło się teraz!\n" +
+											"Kordy skrzynek:\n");
+
+
+						int chestIndex = 0;
+						for (String location : locationsToString(chestsLocation)) {
+							if (chestIndex <= plugin.events.getInt(GetDataDirectory("NumberOfMainChests"))) {
+								messageToAllPlayers(location);
+							}
+							else {
+								messageToAllPlayers(location);
+							}
+							chestIndex++;
+						}
 						// TODO dodaj ze jak jest bedrock na 0 w ustawieniach to nie stawiaj go w ogóle
 						createBedrock();
 						plugin.events.set(GetDataDirectory("isBedrockPlaced"), isBedrockPlaced);
@@ -250,8 +265,48 @@ public class ChestEventFile {
 							public void run() {
 								if (timeToDestroyBedrock == 0) {
 									createChests();
-									messageToAllPlayers("Bedrock zniknął - Umrzyjcie za itemy lub zgińcie w biedzie...");
+									messageToAllPlayers("Bedrock wokół skrzyń zniknął - Umrzyjcie za itemy lub żyjcie w biedzie...");
 									Bukkit.getServer().getScheduler().cancelTask(bedrockTimer);
+									chestOpenListener = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+										public void run() {
+											int numberOfChestDeleted = 0;
+											int numberOfChests = plugin.events.getInt(GetDataDirectory("NumberOfMainChests")) + plugin.events.getInt(GetDataDirectory("NumberOfExtraChests"));
+
+											for (int chestIndex = 0; chestIndex < chestsLocation.length; chestIndex++) {
+												if (chestsLocation[chestIndex] == null) {
+													numberOfChestDeleted++;
+													continue;
+												}
+
+												if (chestsLocation[chestIndex].getBlock().getType() != Material.CHEST) {
+													messageToAllPlayers("Skrzynia na kordach " + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + " została otworzona! Niech zdobywcy itemów długo one służą.");
+													chestsLocation[chestIndex] = null;
+													plugin.events.set(GetDataDirectory("chestsLocation"), locationsToString(chestsLocation));
+													saveEventsFile();
+												}
+												else {
+													Chest tempChest = (Chest) chestsLocation[chestIndex].getBlock().getState();
+													if (tempChest.getLootTable() == null) {
+														messageToAllPlayers("Skrzynia na kordach " + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + " została otworzona! Niech zdobywcy itemów długo one służą.");
+														chestsLocation[chestIndex] = null;
+														plugin.events.set(GetDataDirectory("chestsLocation"), locationsToString(chestsLocation));
+														saveEventsFile();
+													}
+												}
+												if (chestsLocation[chestIndex] == null) {
+													numberOfChestDeleted++;
+												}
+											}
+
+											if (numberOfChestDeleted >= numberOfChests) {
+												messageToAllPlayers("Została otworzona ostatnia skrzynia! Wydarzenie " + Name + " uważam za skończone!");
+												plugin.events.set(Name, null);
+												saveEventsFile();
+												plugin.deleteNotUsedEvents();
+												Bukkit.getServer().getScheduler().cancelTask(chestOpenListener);
+											}
+										}
+									}, 0, 20);
 									return;
 								}
 								if (timeToDestroyBedrock % 60 == 0) {
@@ -260,7 +315,6 @@ public class ChestEventFile {
 								timeToDestroyBedrock--;
 							}
 
-							
 						}, 0, 20);
 
 						Bukkit.getServer().getScheduler().cancelTask(timerStart);
@@ -277,9 +331,18 @@ public class ChestEventFile {
 	}
 
 	private String[] locationsToString(Location[] chestsLocation) {
-		String[] toReturn = new String[chestsLocation.length];
+		List<String> arrayToReturn = new ArrayList<>();
+		for (int i = 0; i < chestsLocation.length; i++) {
+			if (chestsLocation[i] == null) {
+				// i--;
+				continue;
+			}
+			arrayToReturn.add((int)chestsLocation[i].getX() + " " + (int)chestsLocation[i].getY() + " " + (int)chestsLocation[i].getZ());
+		}
+
+		String[] toReturn = new String[arrayToReturn.size()];
 		for (int i = 0; i < toReturn.length; i++) {
-			toReturn[i] = chestsLocation[i].getX() + " " + chestsLocation[i].getY() + " " + chestsLocation[i].getZ();
+			toReturn[i] = arrayToReturn.get(i);
 		}
 
 		return toReturn;
@@ -362,9 +425,9 @@ public class ChestEventFile {
 							!getLocation(xCoord, yCoord, zCoord - 1).getBlock().getType().equals(Material.AIR)) {
 								break;
 							}
-						plugin.getLogger().info("Kordy: " + xCoord + " " + yCoord + " " + zCoord);
-						toReturn[i] = new Location(Bukkit.getServer().getWorld("world"), xCoord, yCoord, zCoord);
-						isChestOk = true;
+						
+							toReturn[i] = new Location(Bukkit.getServer().getWorld("world"), xCoord, yCoord, zCoord);
+							isChestOk = true;
 						break;
 					}
 				}
