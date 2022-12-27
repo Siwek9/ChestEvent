@@ -101,10 +101,11 @@ public class ChestEventTabExecutor implements CommandExecutor {
 				JsonParser jsonParser = new JsonParser();
 				JsonObject eventData;
 				try {
+					// eventData = new JsonObject();
 					eventData = (JsonObject) jsonParser.parse(args[2]);
 				}
 				catch(Exception e) {
-					e.printStackTrace();
+					// e.printStackTrace();
 					String allArguments = new String();
 					for (String arg : Arrays.asList(args).subList(2, args.length)) {
 						allArguments += arg + " ";
