@@ -123,7 +123,7 @@ public final class ChestEvent extends JavaPlugin {
 
 	public void deleteNotUsedEvents() {
 		for (int i = 0; i < listOfEvents.size(); i++) {
-			if (this.events.contains(listOfEvents.get(i).Name)) {
+			if (!this.events.contains(listOfEvents.get(i).Name)) {
 				listOfEvents.remove(i);
 				i--;
 			}
