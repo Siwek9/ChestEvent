@@ -79,8 +79,6 @@ public class ChestEventTabExecutor implements CommandExecutor {
 			
 			Pattern eventNamePattern = Pattern.compile("^[a-z|A-Z|_]+[a-z|A-Z|0-9|_]*");
 			
-			
-			
 			if (!eventNamePattern.matcher(eventName).matches()) {
 				String allArguments = new String();
 				for (String arg : Arrays.asList(args).subList(1, args.length)) {

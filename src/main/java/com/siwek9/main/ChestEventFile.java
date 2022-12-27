@@ -15,8 +15,12 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.loot.LootTables;
 
 import com.google.gson.JsonObject;
 
@@ -219,6 +223,7 @@ public class ChestEventFile {
 
 	int timerStart;
 	int bedrockTimer;
+	int timeToDestroyBedrock;
 
 	public void start() {
 		if (plugin.events.getBoolean(GetDataDirectory("ForceManualStart")) == true) {
@@ -227,15 +232,36 @@ public class ChestEventFile {
 		else {
 			System.out.println("siema");
 			isStarted = true;
-			plugin.events.set(GetDataDirectory("isStarted"), true);
+			plugin.events.set(GetDataDirectory("isStarted"), isStarted);
+			saveEventsFile();
 			setTimer = 10;
 			timerStart = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 				public void run() {
 					if (setTimer == 0) {
 						chestsLocation = createChestsLocation();
+						plugin.events.set(GetDataDirectory("chestsLocation"), locationsToString(chestsLocation));
+						saveEventsFile();
 						// TODO dodaj ze jak jest bedrock na 0 w ustawieniach to nie stawiaj go w ogóle
 						createBedrock();
+						plugin.events.set(GetDataDirectory("isBedrockPlaced"), isBedrockPlaced);
+						saveEventsFile();
+						timeToDestroyBedrock = plugin.events.getInt(GetDataDirectory("TimeOfLock"));
+						bedrockTimer = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+							public void run() {
+								if (timeToDestroyBedrock == 0) {
+									createChests();
+									messageToAllPlayers("Bedrock zniknął - Umrzyjcie za itemy lub zgińcie w biedzie...");
+									Bukkit.getServer().getScheduler().cancelTask(bedrockTimer);
+									return;
+								}
+								if (timeToDestroyBedrock % 60 == 0) {
+									messageToAllPlayers("Bedrock zniknie za " + timeToDestroyBedrock + " sekund");
+								}
+								timeToDestroyBedrock--;
+							}
 
+							
+						}, 0, 20);
 
 						Bukkit.getServer().getScheduler().cancelTask(timerStart);
 						return;
@@ -245,7 +271,59 @@ public class ChestEventFile {
 					}
 					setTimer--;
 				}
+
 			}, 0, 20);
+		}
+	}
+
+	private String[] locationsToString(Location[] chestsLocation) {
+		String[] toReturn = new String[chestsLocation.length];
+		for (int i = 0; i < toReturn.length; i++) {
+			toReturn[i] = chestsLocation[i].getX() + " " + chestsLocation[i].getY() + " " + chestsLocation[i].getZ();
+		}
+
+		return toReturn;
+	}
+	
+	private void messageToAllPlayers(String message) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.sendMessage(message);
+		}
+	}
+
+	private void messageToAllOps(String message) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (player.isOp()) {
+				player.sendMessage(message);
+			}
+		}
+	}
+
+	void createChests() {
+		int numberOfChest = 1;
+		isBedrockPlaced = false;
+		for (Location location : chestsLocation) {
+			location.clone().add(1,0,0).getBlock().setType(Material.AIR);
+			location.clone().add(-1,0,0).getBlock().setType(Material.AIR);
+			location.clone().add(0,1,0).getBlock().setType(Material.AIR);
+			location.clone().add(0,-1,0).getBlock().setType(Material.AIR);
+			location.clone().add(0,0,1).getBlock().setType(Material.AIR);
+			location.clone().add(0,0,-1).getBlock().setType(Material.AIR);	
+			Block chestBlock = location.getBlock();
+			chestBlock.setType(Material.CHEST);
+			if (chestBlock.getState() instanceof Chest) {
+				Chest chest = (Chest) chestBlock.getState();
+				if (numberOfChest <= plugin.events.getInt(GetDataDirectory("NumberOfMainChests"))) {
+					chest.setLootTable(Bukkit.getServer().getLootTable(NamespacedKey.minecraft("chests/" + plugin.events.getString(GetDataDirectory("MainLootTable")))));
+					// chest.setLootTable(LootTables.SIMPLE_DUNGEON.getLootTable());
+				}
+				else {
+					chest.setLootTable(Bukkit.getServer().getLootTable(NamespacedKey.minecraft("chests/" + plugin.events.getString(GetDataDirectory("ExtraLootTable")))));
+					// chest.setLootTable(LootTables.SIMPLE_DUNGEON.getLootTable());
+				}
+				chest.update();
+			}
+			numberOfChest++;
 		}
 	}
 
@@ -256,9 +334,9 @@ public class ChestEventFile {
 			location.clone().add(0,1,0).getBlock().setType(Material.BEDROCK);
 			location.clone().add(0,-1,0).getBlock().setType(Material.BEDROCK);
 			location.clone().add(0,0,1).getBlock().setType(Material.BEDROCK);
-			location.clone().add(0,0,-1).getBlock().setType(Material.BEDROCK);
-			
+			location.clone().add(0,0,-1).getBlock().setType(Material.BEDROCK);	
 		}
+		isBedrockPlaced = true;
 	}
 
 	Location[] createChestsLocation() {
