@@ -1,5 +1,8 @@
 package com.siwek9.main;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,16 +70,17 @@ public class ChestEventTabExecutor implements CommandExecutor {
 		}
 
 		// command should always get a event name
-		if (args.length < 2) {
+		if (args.length < 2 && !args[0].equals("info")) {
 			sender.sendMessage("§cUnknown or incomplete command, see below for error\n§7" + printEndOfString(label + " " + args[0], 10) + "§c§o<--[HERE]");
 			return true;
 		}
 
-		String eventName = args[1];
 
+		
 		
 		if (subCommand.equals("create")) {
 			
+			String eventName = args[1];
 			Pattern eventNamePattern = Pattern.compile("^[a-z|A-Z|_]+[a-z|A-Z|0-9|_]*");
 			
 			if (!eventNamePattern.matcher(eventName).matches()) {
@@ -126,11 +130,13 @@ public class ChestEventTabExecutor implements CommandExecutor {
 					return true;
 				}
 				plugin.listOfEvents.add(new ChestEventFile(eventName, eventData));
+				sender.sendMessage("§2Event with name §9\"" + eventName + "\"§2 has been added successfully.");
 				return true;			
 
 			}
 		}
 		else if (subCommand.equals("edit")) {
+			String eventName = args[1];
 			Pattern eventNamePattern = Pattern.compile("^[a-z|A-Z|_]+[a-z|A-Z|0-9|_]*");
 			if (!eventNamePattern.matcher(eventName).matches()) {
 				String allArguments = new String();
@@ -187,6 +193,120 @@ public class ChestEventTabExecutor implements CommandExecutor {
 				// 	}
 				// }
 			
+		}
+		else if (subCommand.equals("remove")) {
+			String eventName = args[1];
+			Pattern eventNamePattern = Pattern.compile("^[a-z|A-Z|_]+[a-z|A-Z|0-9|_]*");
+			if (!eventNamePattern.matcher(eventName).matches()) {
+				String allArguments = new String();
+				for (String arg : Arrays.asList(args).subList(1, args.length)) {
+					allArguments += arg + " ";
+				} 
+				sender.sendMessage("§cUnknown or incomplete command, see below for error\n§7" + printEndOfString(label + " " + args[0], 10) + " §c§n" + allArguments + "§r§c§o<--[HERE]");
+				return true;
+			}
+
+			if (!plugin.events.contains(eventName)) {
+				sender.sendMessage("§cThere is no event with the name \"" + eventName + "\". You cannot delete it then.");
+				return true;
+			}
+
+			if (plugin.events.contains(eventName + ".isStarted") && plugin.events.getBoolean(eventName + ".isStarted") == true) {
+				sender.sendMessage("§cYou cannot delete started Events!");
+				return true;
+			}
+
+			for (int i = 0; i < plugin.listOfEvents.size(); i++) {
+				if (plugin.listOfEvents.get(i).Name.equals(eventName)) {
+					plugin.listOfEvents.remove(i);
+					plugin.events.set(eventName, null);
+					try{
+						plugin.events.save(plugin.eventsFile);
+					}
+					catch (IOException e) {
+						e.printStackTrace();
+					}
+					sender.sendMessage("§2Event §9\"" + eventName + "\"§2 has ben successfully removed!");
+					break;
+				}
+			}
+		}
+		else if (subCommand.equals("start")) {
+			String eventName = args[1];
+			Pattern eventNamePattern = Pattern.compile("^[a-z|A-Z|_]+[a-z|A-Z|0-9|_]*");
+			if (!eventNamePattern.matcher(eventName).matches()) {
+				String allArguments = new String();
+				for (String arg : Arrays.asList(args).subList(1, args.length)) {
+					allArguments += arg + " ";
+				} 
+				sender.sendMessage("§cUnknown or incomplete command, see below for error\n§7" + printEndOfString(label + " " + args[0], 10) + " §c§n" + allArguments + "§r§c§o<--[HERE]");
+				return true;
+			}
+
+			if (!plugin.events.contains(eventName)) {
+				sender.sendMessage("§cThere is no event with the name \"" + eventName + "\".");
+				return true;
+			}
+
+			if (plugin.events.contains(eventName + ".isStarted") && plugin.events.getBoolean(eventName + ".isStarted") == true) {
+				sender.sendMessage("§cThis event is already started!");
+				return true;
+			}
+
+			for (int i = 0; i < plugin.listOfEvents.size(); i++) {
+				if (plugin.listOfEvents.get(i).Name.equals(eventName)) {
+					plugin.listOfEvents.get(i).start(true);
+					break;
+				}
+			}
+		}
+		else if (subCommand.equals("info")) {
+			if (args.length < 2) {
+				// FIXME powinne się wyświetlać wszystkie eventy czy tylko bez secret true?
+				if (plugin.listOfEvents.size() > 0) {
+					sender.sendMessage("Ilość zaplanowanych wydarzeń: " + args.length);
+					for (ChestEventFile chestEventFile : plugin.listOfEvents) {
+						if (!sender.isOp() && plugin.events.getBoolean(chestEventFile.Name + ".Secret") == true) continue; 
+						sender.sendMessage("- " + chestEventFile.Name);
+					}
+				}
+				else {
+					sender.sendMessage("Nie ma aktualnie żadnych zaplanowanych wydarzeń.");
+				}
+				return true;
+			}
+			String eventName = args[1];
+			Pattern eventNamePattern = Pattern.compile("^[a-z|A-Z|_]+[a-z|A-Z|0-9|_]*");
+			if (!eventNamePattern.matcher(eventName).matches()) {
+				String allArguments = new String();
+				for (String arg : Arrays.asList(args).subList(1, args.length)) {
+					allArguments += arg + " ";
+				} 
+				sender.sendMessage("§cUnknown or incomplete command, see below for error\n§7" + printEndOfString(label + " " + args[0], 10) + " §c§n" + allArguments + "§r§c§o<--[HERE]");
+				return true;
+			}
+
+			if (!plugin.events.contains(eventName)) {
+				sender.sendMessage("§cThere is no event with the name \"" + eventName + "\".");
+				return true;
+			}
+
+			if (plugin.events.contains(eventName + ".isStarted") && plugin.events.getBoolean(eventName + ".isStarted") == true) {
+				sender.sendMessage("§cThis event is already started!");
+				return true;
+			}
+
+			for (ChestEventFile chestEventFile : plugin.listOfEvents) {
+				if (chestEventFile.Name.equals(eventName)) {
+					sender.sendMessage("Wydarzenie " + eventName + " jest zaplanowane na " + (DateTimeFormatter.ofPattern("d.MM.yyyy hh:mm")).format(chestEventFile.dateTime));
+				}
+			}
+			// for (int i = 0; i < plugin.listOfEvents.size(); i++) {
+			// 	if (plugin.listOfEvents.get(i).Name.equals(eventName)) {
+			// 		sender.sendMessage("Wydarzenie " + plugin.listOfEvents.);
+			// 		break;
+			// 	}
+			// }
 		}
 
 		return true;

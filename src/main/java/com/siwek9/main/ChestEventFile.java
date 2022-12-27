@@ -227,11 +227,15 @@ public class ChestEventFile {
 	int timeToDestroyBedrock;
 
 	public void start() {
-		if (plugin.events.getBoolean(GetDataDirectory("ForceManualStart")) == true) {
+		start(false);
+	}
+
+	public void start(boolean ManualStart) {
+		if (plugin.events.getBoolean(GetDataDirectory("ForceManualStart")) == true && ManualStart == false) {
 			sendStartMessage();
 		}
 		else {
-			System.out.println("siema");
+			// System.out.println("siema");
 			isStarted = true;
 			plugin.events.set(GetDataDirectory("isStarted"), isStarted);
 			saveEventsFile();
@@ -302,6 +306,7 @@ public class ChestEventFile {
 												messageToAllPlayers("Została otworzona ostatnia skrzynia! Wydarzenie " + Name + " uważam za skończone!");
 												plugin.events.set(Name, null);
 												saveEventsFile();
+												isStarted = false;
 												plugin.deleteNotUsedEvents();
 												Bukkit.getServer().getScheduler().cancelTask(chestOpenListener);
 											}
