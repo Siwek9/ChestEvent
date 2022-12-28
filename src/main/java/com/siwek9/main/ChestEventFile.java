@@ -271,6 +271,9 @@ public class ChestEventFile {
 							public void run() {
 								if (timeToDestroyBedrock == 0) {
 									createChests();
+									isBedrockPlaced = false;
+									plugin.events.set(GetDataDirectory("isBedrockPlaced"), isBedrockPlaced);
+									saveEventsFile();
 									messageToAllPlayers("§9Bedrock§5 wokół skrzyń zniknął\nUmrzyjcie za itemy lub żyjcie w biedzie...");
 									soundToAllPlayers(Sound.ENTITY_LIGHTNING_BOLT_IMPACT);
 									Bukkit.getServer().getScheduler().cancelTask(bedrockTimer);
