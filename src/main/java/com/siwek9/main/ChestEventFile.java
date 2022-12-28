@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -17,6 +16,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.configuration.ConfigurationSection;
@@ -246,17 +247,18 @@ public class ChestEventFile {
 						chestsLocation = createChestsLocation();
 						plugin.events.set(GetDataDirectory("chestsLocation"), locationsToString(chestsLocation));
 						saveEventsFile();
-						messageToAllPlayers("Wydarzenie " + Name + " rozpoczęło się teraz!\n" +
-											"Kordy skrzynek:\n");
+						messageToAllPlayers("§2§lWydarzenie §c\"" + Name + "\"§2§l właśnie się zaczęło\n" +
+											"§r§9Kordy skrzynek:\n");
+						soundToAllPlayers(Sound.ENTITY_ZOMBIE_VILLAGER_CURE);
 
 
-						int chestIndex = 0;
+						int chestIndex = 1;
 						for (String location : locationsToString(chestsLocation)) {
 							if (chestIndex <= plugin.events.getInt(GetDataDirectory("NumberOfMainChests"))) {
-								messageToAllPlayers(location);
+								messageToAllPlayers("§6§o" + location);
 							}
 							else {
-								messageToAllPlayers(location);
+								messageToAllPlayers("§a§o" + location);
 							}
 							chestIndex++;
 						}
@@ -269,7 +271,8 @@ public class ChestEventFile {
 							public void run() {
 								if (timeToDestroyBedrock == 0) {
 									createChests();
-									messageToAllPlayers("Bedrock wokół skrzyń zniknął - Umrzyjcie za itemy lub żyjcie w biedzie...");
+									messageToAllPlayers("§9Bedrock§5 wokół skrzyń zniknął\nUmrzyjcie za itemy lub żyjcie w biedzie...");
+									soundToAllPlayers(Sound.ENTITY_LIGHTNING_BOLT_IMPACT);
 									Bukkit.getServer().getScheduler().cancelTask(bedrockTimer);
 									chestOpenListener = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 										public void run() {
@@ -283,7 +286,13 @@ public class ChestEventFile {
 												}
 
 												if (chestsLocation[chestIndex].getBlock().getType() != Material.CHEST) {
-													messageToAllPlayers("Skrzynia na kordach " + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + " została otworzona! Niech zdobywcy itemów długo one służą.");
+													if (chestIndex + 1 <= plugin.events.getInt(GetDataDirectory("NumberOfMainChests"))) {
+														messageToAllPlayers("§9Skrzynia na kordach §6" + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + "§9 została otworzona! Niech zdobywcy itemów długo one służą.");
+													}
+													else {
+														messageToAllPlayers("§9Skrzynia na kordach §a" + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + "§9 została otworzona! Niech zdobywcy itemów długo one służą.");
+													}
+													soundToAllPlayers(Sound.ENTITY_LIGHTNING_BOLT_THUNDER);
 													chestsLocation[chestIndex] = null;
 													plugin.events.set(GetDataDirectory("chestsLocation"), locationsToString(chestsLocation));
 													saveEventsFile();
@@ -291,7 +300,13 @@ public class ChestEventFile {
 												else {
 													Chest tempChest = (Chest) chestsLocation[chestIndex].getBlock().getState();
 													if (tempChest.getLootTable() == null) {
-														messageToAllPlayers("Skrzynia na kordach " + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + " została otworzona! Niech zdobywcy itemów długo one służą.");
+														if (chestIndex + 1 <= plugin.events.getInt(GetDataDirectory("NumberOfMainChests"))) {
+															messageToAllPlayers("§9Skrzynia na kordach §6" + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + "§9 została otworzona! Niech zdobywcy itemów długo one służą.");
+														}
+														else {
+															messageToAllPlayers("§9Skrzynia na kordach §a" + (int)chestsLocation[chestIndex].getX() + " " + (int)chestsLocation[chestIndex].getY() + " " + (int)chestsLocation[chestIndex].getZ() + "§9 została otworzona! Niech zdobywcy itemów długo one służą.");
+														}
+														soundToAllPlayers(Sound.ENTITY_LIGHTNING_BOLT_THUNDER);
 														chestsLocation[chestIndex] = null;
 														plugin.events.set(GetDataDirectory("chestsLocation"), locationsToString(chestsLocation));
 														saveEventsFile();
@@ -303,7 +318,8 @@ public class ChestEventFile {
 											}
 
 											if (numberOfChestDeleted >= numberOfChests) {
-												messageToAllPlayers("Została otworzona ostatnia skrzynia! Wydarzenie " + Name + " uważam za skończone!");
+												messageToAllPlayers("§6Została otworzona ostatnia skrzynia!\nWydarzenie §C" + Name + "§6 uważam za skończone");
+												soundToAllPlayers(Sound.UI_TOAST_CHALLENGE_COMPLETE);
 												plugin.events.set(Name, null);
 												saveEventsFile();
 												isStarted = false;
@@ -315,7 +331,8 @@ public class ChestEventFile {
 									return;
 								}
 								if (timeToDestroyBedrock % 60 == 0) {
-									messageToAllPlayers("Bedrock zniknie za " + timeToDestroyBedrock + " sekund");
+									messageToAllPlayers("§9Bedrock§5 zniknie za §9" + timeToDestroyBedrock + "§5 sekund");
+									soundToAllPlayers(Sound.UI_BUTTON_CLICK);
 								}
 								timeToDestroyBedrock--;
 							}
@@ -325,13 +342,17 @@ public class ChestEventFile {
 						Bukkit.getServer().getScheduler().cancelTask(timerStart);
 						return;
 					}
-					for (Player player : Bukkit.getOnlinePlayers()) {
-						player.sendMessage("§eWydarzenie §l§c" + Name + "§r§e rozpocznie się za " + setTimer + "!");
-					}
+					messageToAllPlayers("§eWydarzenie §l§c" + Name + "§r§e rozpocznie się za " + setTimer);
 					setTimer--;
 				}
 
 			}, 0, 20);
+		}
+	}
+
+	protected void soundToAllPlayers(Sound soundToPlay) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			player.playSound(player.getLocation(), soundToPlay, SoundCategory.MASTER, 1, 1);
 		}
 	}
 

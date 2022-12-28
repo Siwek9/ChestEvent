@@ -1,7 +1,6 @@
 package com.siwek9.main;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -264,14 +263,14 @@ public class ChestEventTabExecutor implements CommandExecutor {
 			if (args.length < 2) {
 				// FIXME powinne się wyświetlać wszystkie eventy czy tylko bez secret true?
 				if (plugin.listOfEvents.size() > 0) {
-					sender.sendMessage("Ilość zaplanowanych wydarzeń: " + args.length);
+					sender.sendMessage("§aIlość zaplanowanych wydarzeń: " + args.length);
 					for (ChestEventFile chestEventFile : plugin.listOfEvents) {
 						if (!sender.isOp() && plugin.events.getBoolean(chestEventFile.Name + ".Secret") == true) continue; 
-						sender.sendMessage("- " + chestEventFile.Name);
+						sender.sendMessage("§a- " + chestEventFile.Name);
 					}
 				}
 				else {
-					sender.sendMessage("Nie ma aktualnie żadnych zaplanowanych wydarzeń.");
+					sender.sendMessage("§cNie ma aktualnie żadnych zaplanowanych wydarzeń.");
 				}
 				return true;
 			}
@@ -292,7 +291,7 @@ public class ChestEventTabExecutor implements CommandExecutor {
 			}
 
 			if (plugin.events.contains(eventName + ".isStarted") && plugin.events.getBoolean(eventName + ".isStarted") == true) {
-				sender.sendMessage("§cThis event is already started!");
+				sender.sendMessage("§aTo wydarzenie jest aktualnie rozpoczęte");
 				return true;
 			}
 
