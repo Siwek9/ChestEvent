@@ -96,6 +96,7 @@ public class ChestEventTabExecutor implements CommandExecutor {
 					return true;
 				}
 				plugin.listOfEvents.add(new ChestEventFile(eventName));
+				sender.sendMessage("§2Event with name §9\"" + eventName + "\"§2 has been added successfully.");
 			}
 			else {
 				

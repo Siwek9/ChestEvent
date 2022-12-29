@@ -94,10 +94,33 @@ public class ChestEventFile {
 			eventWasBefore = -1;
 		}
 
-		if (plugin.events.getBoolean("isStarted")) {
-			isStarted = true;
+		if (plugin.events.contains(GetDataDirectory("isStarted"))) {
+			// messageToAllPlayers("siema");
+			isStarted = plugin.events.getBoolean(GetDataDirectory("isStarted"));
+			if (!plugin.events.contains(GetDataDirectory("isBedrockPlaced"))) {
+				startEventTimer();
+			}
+			else {
+				isBedrockPlaced = plugin.events.getBoolean(GetDataDirectory("isBedrockPlaced"));
+				var locationStrings = plugin.events.getStringList(GetDataDirectory("chestsLocation"));
+				chestsLocation = new Location[locationStrings.size()];
+	
+				for (int i = 0; i < locationStrings.size(); i++) {
+					String[] coord = locationStrings.get(i).split(" ");
+					// messageToAllPlayers(coord[0] + "/" + coord[1] + "/" + coord[2]);
+					chestsLocation[i] = new Location(Bukkit.getServer().getWorld("world"), Double.parseDouble(coord[0]), Double.parseDouble(coord[1]), Double.parseDouble(coord[2]));
+				}
+
+				if (isBedrockPlaced) {
+					startBedrockTimer();
+				}
+				else {
+					startChestListener();
+				}
+			}
 		}
 	}	
+	
 	
 	ChestEventFile(String Name, JsonObject eventData) {
 		this.Name = Name;
@@ -357,13 +380,13 @@ public class ChestEventFile {
 		}
 	}
 
-	private void messageToAllOps(String message) {
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (player.isOp()) {
-				player.sendMessage(message);
-			}
-		}
-	}
+	// private void messageToAllOps(String message) {
+	// 	for (Player player : Bukkit.getOnlinePlayers()) {
+	// 		if (player.isOp()) {
+	// 			player.sendMessage(message);
+	// 		}
+	// 	}
+	// }
 
 	void createChests() {
 		int numberOfChest = 1;
