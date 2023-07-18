@@ -1,0 +1,36 @@
+# Date pattern "dd.mm.yyyy"
+# Time pattern "hh:mm"
+# RefreshTime is in Ticks
+# place your loot tables in "loottable" folder
+# when Secret value is set to true users will not get any message about the event
+# when ForceManualStart is set to true, the event should start send message to all op players, asking them to start the event
+# TimeOfReminder is in a minutes (set value to 0 to turn off the reminder)
+# TimeOfLock is in a seconds (set value to 0 to turn off the reminder)
+
+RefreshTime: 100
+RadiusOfEvent: 1200
+DefaultOptions:
+  Date: now
+  Time: now
+  MainLootTable: loot_table
+  ExtraLootTable: loot_table
+  NumberOfMainChests: 1
+  NumberOfExtraChests: 2
+  TimeOfReminder: 30
+  TimeOfLock: 1200
+  NumberOfRepetition: 1
+  EventIntervals: 0
+  Stackable: false
+  CanRunWithOthers: true
+  DontCountInEventList: false
+  CountTimeFromEvent: end
+  DeleteEventWhenInactive: true
+  ForceManualStart: false
+  Secret: false
+  StartReminder: 30 minutes
+  ReminderInvervals: every 5 minutes
+  ReminderMessage: The Event {{ EventName }} will start in {{ TimeLeft }} minutes
+  EventMessage: The Event {{ EventName }} starts now! Chest are generated at coords
+    {{ ChestsCoords }}. Good luck getting them ;)
+  EventLength: unlimited
+  Type: EmptyEvent

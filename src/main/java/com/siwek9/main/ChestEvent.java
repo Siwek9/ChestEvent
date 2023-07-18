@@ -2,32 +2,24 @@ package com.siwek9.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-// import java.io.IOException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-// import org.bukkit.configuration.file.YamlConfiguration;
-// import org.bukkit.configuration.InvalidConfigurationException;
-
-// import com.google.gson.JsonObject;
-
-// import me.lucko.commodore.Commodore;
-// import me.lucko.commodore.CommodoreProvider;
-// import me.lucko.commodore.CommodoreProvider;
-// import me.lucko.commodore.file.CommodoreFileReader;
 
 public final class ChestEvent extends JavaPlugin {
 
-
 	public FileConfiguration config;
 
-	public String lootTablesDirectory = "LootTables";
+	public String lootTablesFolderName = "LootTables";
 
 	public YamlConfiguration events;
 	public File eventsFile;
@@ -38,26 +30,23 @@ public final class ChestEvent extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		
-		
-		
-		if (!getDataFolder().exists()) {
-			getDataFolder().mkdir();
+		if (!this.getDataFolder().exists()) {
+			this.getDataFolder().mkdir();
 		}
 		
 		config = this.getConfig();
+		workWithConfig();
 		
-		if (!new File(getDataFolder(), lootTablesDirectory).exists()) {
-			new File(getDataFolder(), lootTablesDirectory).mkdir();
+		if (!new File(getDataFolder(), lootTablesFolderName).exists()) {
+			new File(getDataFolder(), lootTablesFolderName).mkdir();
 			getLogger().info("Create \"LootTables\" directory where you should put your custom LootTables.");
-			getLogger().info("You can create custom LootTable in this generator: https://misode.github.io/loot-table/");
+			// getLogger().info("You can create custom LootTable in this generator: https://misode.github.io/loot-table/");
 		}
 		
-		setDefaultConfig();
 
 		listOfEvents = new ArrayList<>();
 
-		eventsFile = new File(this.getDataFolder(), "events.yaml");
+		eventsFile = new File(this.getDataFolder(), "events.yml");
 		try {
 			eventsFile.createNewFile();
 			events = YamlConfiguration.loadConfiguration(eventsFile);
@@ -93,7 +82,7 @@ public final class ChestEvent extends JavaPlugin {
 					} 
 				}
 			}
-		}, 0, config.getInt("TicksPerRefresh"));
+		}, 0, config.getInt("RefreshTime"));
 
 		// if (CommodoreProvider.isSupported()) {
 		// 	Commodore commodore = CommodoreProvider.getCommodore(this);
@@ -150,33 +139,62 @@ public final class ChestEvent extends JavaPlugin {
 	// 	return ListOfLootTables;
 	// }
 	
-	void setDefaultConfig() {
-		if(!config.contains("Defaults.Date", false)) {
+	void workWithConfig() {
+
+		YamlConfiguration defaultConfigConfiguration;
+		InputStream is = getClass().getClassLoader().getResourceAsStream("default-config.yml");
+
+		try (InputStreamReader streamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+			defaultConfigConfiguration = YamlConfiguration.loadConfiguration(streamReader);	
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+			return;
+		}
+
+		System.out.println(defaultConfigConfiguration.getString("DefaultOptions.Date"));
+
+		if(!new File(getDataFolder(), "config.yml").exists()) {
+			if (is == null) {
+				getLogger().warning("Cannot Create config.yml");
+				return;
+			}
+
+			// defaultConfigConfiguration
+			// config.addDefaults(defaultConfigConfiguration);
+			config.setDefaults(defaultConfigConfiguration);
+			// String defaultConfigContent = ExtendedInputStream.convertToString(is);
 			getLogger().info("Create \"config.yml\".");
 		}
-		config.options().header("date pattern \"dd.mm.yyyy\"\n" +
-								"time pattern \"hh:mm\"\n" +
-								"place your loot tables in \"loottable\" folder\n" +
-								"when Secret value is set to true users will not get any message about the event\n" +
-								"when ForceManualStart is set to true, the event should start send message to all op players, asking them to start the event\n" +
-								"TimeOfReminder is in a minutes (set value to 0 to turn off the reminder)\n" +
-								"TimeOfLock is in a seconds (set value to 0 to turn off the reminder)\n");
-
-		config.addDefault("RadiusOfEvent", 1200);
-		config.addDefault("TicksPerRefresh", 100);
-		config.addDefault("Defaults.Date", "now");
-		config.addDefault("Defaults.Time", "now");
-		config.addDefault("Defaults.MainLootTable", "default_main_loot_table");
-		config.addDefault("Defaults.ExtraLootTable", "default_extra_loot_table");
-		config.addDefault("Defaults.NumberOfMainChests", 1);
-		config.addDefault("Defaults.NumberOfExtraChests", 2);
-		config.addDefault("Defaults.Secret", false);
-		config.addDefault("Defaults.ForceManualStart", false);
-		config.addDefault("Defaults.TimeOfReminder", 30);
-		config.addDefault("Defaults.TimeOfLock", 300);
-		config.addDefault("Defaults.ReminderMessage", "The Event {EventName} will start in {TimeOfReminder} minutes");
-		config.addDefault("Defaults.EventMessage", "The Event {EventName} starts now! Chest are generated at coords {ChestsCords}. Good luck getting them ;)");
+		else {
+			if (is == null) {
+				getLogger().warning("Cannot validate config.yml");
+				return;
+			}
+		}
+		// config.options().header("date pattern \"dd.mm.yyyy\"\n" +
+		// 						"time pattern \"hh:mm\"\n" +
+		// 						"place your loot tables in \"loottable\" folder\n" +
+		// 						"when Secret value is set to true users will not get any message about the event\n" +
+		// 						"when ForceManualStart is set to true, the event should start send message to all op players, asking them to start the event\n" +
+		// 						"TimeOfReminder is in a minutes (set value to 0 to turn off the reminder)\n" +
+		// 						"TimeOfLock is in a seconds (set value to 0 to turn off the reminder)\n");
+		// config.addDefault("RadiusOfEvent", 1200);
+		// config.addDefault("TicksPerRefresh", 100);
+		// config.addDefault("Defaults.Date", "now");
+		// config.addDefault("Defaults.Time", "now");
+		// config.addDefault("Defaults.MainLootTable", "default_main_loot_table");
+		// config.addDefault("Defaults.ExtraLootTable", "default_extra_loot_table");
+		// config.addDefault("Defaults.NumberOfMainChests", 1);
+		// config.addDefault("Defaults.NumberOfExtraChests", 2);
+		// config.addDefault("Defaults.Secret", false);
+		// config.addDefault("Defaults.ForceManualStart", false);
+		// config.addDefault("Defaults.TimeOfReminder", 30);
+		// config.addDefault("Defaults.TimeOfLock", 300);
+		// config.addDefault("Defaults.ReminderMessage", "The Event {EventName} will start in {TimeOfReminder} minutes");
+		// config.addDefault("Defaults.EventMessage", "The Event {EventName} starts now! Chest are generated at coords {ChestsCords}. Good luck getting them ;)");
 		config.options().copyDefaults(true);
 		saveConfig();
+		// saveConfig();
+		// saveDefaultConfig();
 	}
 }

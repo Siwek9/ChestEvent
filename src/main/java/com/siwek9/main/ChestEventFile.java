@@ -8,10 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-// import java.io.File;
-// import java.io.IOException;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,10 +24,10 @@ import com.google.gson.JsonObject;
 public class ChestEventFile {
 	private static ChestEvent plugin = (ChestEvent)Bukkit.getServer().getPluginManager().getPlugin("ChestEvent");
 
-	private static String STRING_TYPE = "java.lang.String";
-	private static String INTEGER_TYPE = "java.lang.Integer";
-	private static String BOOLEAN_TYPE = "java.lang.Boolean";
-	private static TokenType[] eventVariables = 
+	private final static String STRING_TYPE = "java.lang.String";
+	private final static String INTEGER_TYPE = "java.lang.Integer";
+	private final static String BOOLEAN_TYPE = "java.lang.Boolean";
+	private final static TokenType[] eventVariables = 
 	{
 		new TokenType("Date", STRING_TYPE),
 		new TokenType("Time", STRING_TYPE),
@@ -65,7 +61,7 @@ public class ChestEventFile {
 		this.Name = Name;
 
 		for (TokenType token : eventVariables) {
-			plugin.events.set(GetDataDirectory(token.Name), plugin.config.get("Defaults." + token.Name));
+			plugin.events.set(GetDataDirectory(token.Name), plugin.config.get("DefaultOptions." + token.Name));
 		}
 		saveEventsFile();
 
@@ -84,7 +80,7 @@ public class ChestEventFile {
 				plugin.events.set(GetDataDirectory(token.Name), eventSection.get(token.Name));
 			}
 			else
-				plugin.events.set(GetDataDirectory(token.Name), plugin.config.get("Defaults." + token.Name));
+				plugin.events.set(GetDataDirectory(token.Name), plugin.config.get("DefaultOptions." + token.Name));
 		}
 		saveEventsFile();
 		
@@ -138,7 +134,7 @@ public class ChestEventFile {
 			}
 			else {
 				// FIXME nie używaj "now" w event'ach jak na razie
-				plugin.events.set(GetDataDirectory(token.Name), plugin.config.get("Defaults." + token.Name));
+				plugin.events.set(GetDataDirectory(token.Name), plugin.config.get("DefaultOptions." + token.Name));
 			}
 		}
 		saveEventsFile();
@@ -241,7 +237,7 @@ public class ChestEventFile {
 					isBedrockPlaced = false;
 					plugin.events.set(GetDataDirectory("isBedrockPlaced"), isBedrockPlaced);
 					saveEventsFile();
-					messageToAllPlayers("§9Bedrock§5 wokół skrzyń zniknął\nUmrzyjcie za itemy lub żyjcie w biedzie...");
+					// messageToAllPlayers("§9Bedrock§5 zniknął wokół niechcianych skrzyń.");
 					soundToAllPlayers(Sound.ENTITY_LIGHTNING_BOLT_IMPACT);
 					Bukkit.getServer().getScheduler().cancelTask(bedrockTimer);
 					startChestListener();
