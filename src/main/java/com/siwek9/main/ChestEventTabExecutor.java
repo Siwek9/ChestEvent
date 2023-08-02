@@ -13,6 +13,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 // import org.bukkit.command.TabExecutor;
 
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -32,6 +33,20 @@ public class ChestEventTabExecutor implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (!cmd.getName().equals("event")) return false;
+
+		// System.out.println(Bukkit.getServer().getOnlinePlayers().iterator().next().getScoreboard().getTeams().size());
+		// var player = Bukkit.getServer().getOnlinePlayers().iterator().next();
+		// var teams = player.getScoreboard().getTeams();
+		
+		// for (Team team : teams) {
+		// 	if (team.hasEntry(player.getName())) {
+		// 		System.out.println(team.getName());
+		// 		// break;
+		// 	}
+		// }
+
+
+		// return true;
 		
 		String[] commandsToChoose;
 		// create a array with first arguments that sender can use 
@@ -262,7 +277,7 @@ public class ChestEventTabExecutor implements CommandExecutor {
 		}
 		else if (subCommand.equals("info")) {
 			if (args.length < 2) {
-				// FIXME powinne się wyświetlać wszystkie eventy czy tylko bez secret true?
+				// FIXME powinny się wyświetlać wszystkie event'y czy tylko bez secret true?
 				if (plugin.listOfEvents.size() > 0) {
 					sender.sendMessage("§aIlość zaplanowanych wydarzeń: " + args.length);
 					for (ChestEventFile chestEventFile : plugin.listOfEvents) {
