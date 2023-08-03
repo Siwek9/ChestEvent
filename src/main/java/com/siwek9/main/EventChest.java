@@ -97,7 +97,7 @@ public class EventChest {
         Set<Team> teamsAroundChest = new HashSet<Team>();
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 			Location playerLocation = player.getLocation();
-			if (playerLocation.getWorld().getEnvironment().equals(chestLocation.getWorld().getEnvironment()) && playerLocation.getX() > chestLocation.getX() - radius && playerLocation.getX() < chestLocation.getX() + radius &&
+			if (!player.isDead() && playerLocation.getWorld().equals(chestLocation.getWorld()) && playerLocation.getWorld().getEnvironment().equals(chestLocation.getWorld().getEnvironment()) && playerLocation.getX() > chestLocation.getX() - radius && playerLocation.getX() < chestLocation.getX() + radius &&
 			playerLocation.getY() > chestLocation.getY() - radius/3 && playerLocation.getY() < chestLocation.getY() + radius/3 &&
 			playerLocation.getZ() > chestLocation.getZ() - radius && playerLocation.getZ() < chestLocation.getZ() + radius) {
 				teamsAroundChest.add(player.getScoreboard().getEntryTeam(player.getName()));

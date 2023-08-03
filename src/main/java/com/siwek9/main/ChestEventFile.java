@@ -246,7 +246,7 @@ public class ChestEventFile {
 					messageToAllPlayers("§9Bedrock§5 zniknął wokół niechcianych skrzyń.");
 					Bukkit.getServer().getScheduler().cancelTask(bedrockTimer);
 					for (EventChest eventChest : chestsFromEvent) {
-						if (eventChest.areTeamsAround(2, 30)) {
+						if (eventChest.areTeamsAround(2, 25)) {
 							messageToAllPlayers("§9O skrzynie na kordach §5" + ((int)eventChest.getChestLocation().getX() + " " + (int)eventChest.getChestLocation().getY() + " " + (int)eventChest.getChestLocation().getZ()) + " toczy się walka!");
 						}
 						else {
@@ -277,7 +277,7 @@ public class ChestEventFile {
 			public void run() {
 				for (EventChest eventChest : chestsFromEvent) {
 					if (eventChest.isBedrockPlaced() == true) {
-						if (!eventChest.areTeamsAround(2, 30)) {
+						if (!eventChest.areTeamsAround(2, 25)) {
 							if (eventChest.getTimeToDestroyBedrockInSeconds() <= 0) {
 								messageToAllPlayers("§9Skrzynia na kordach §5" + ((int)eventChest.getChestLocation().getX() + " " + (int)eventChest.getChestLocation().getY() + " " + (int)eventChest.getChestLocation().getZ()) + " została otwarta!");
 								eventChest.destroyBedrock();
