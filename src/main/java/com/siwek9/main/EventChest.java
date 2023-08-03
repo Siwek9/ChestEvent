@@ -18,8 +18,9 @@ public class EventChest {
     private int timeToDestroyBedrockInSeconds;
     private Location[] bedrockLocation;
     private LootTable chestLootTable;
+    private String name;
     
-    public EventChest(Location chestLocation, int secondsToDestroyBedrock, LootTable chestLootTable) {
+    public EventChest(String name, Location chestLocation, int secondsToDestroyBedrock, LootTable chestLootTable) {
         this.chestLocation = chestLocation;
         this.bedrockLocation = new Location[] {
             chestLocation.clone().add(1,0,0),
@@ -30,9 +31,21 @@ public class EventChest {
 			chestLocation.clone().add(0,0, -1)
         };
 
+        this.name = name;
         this.timeToDestroyBedrockInSeconds = secondsToDestroyBedrock;
         this.chestLootTable = chestLootTable;
 
+        for(Location bedrockPosition : bedrockLocation) {
+            if (!bedrockPosition.getBlock().getType().equals(Material.BEDROCK)) {
+                bedrockPlaced = false;
+                return;
+            }
+        }
+        bedrockPlaced = true;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Location getChestLocation() {
@@ -92,4 +105,8 @@ public class EventChest {
 		}
         return teamsAroundChest.size() >= quantity;
 	}
+
+    public void setTimeToDestroyBedrockInSeconds(int i) {
+        timeToDestroyBedrockInSeconds = i;
+    }
 }
