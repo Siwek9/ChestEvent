@@ -17,16 +17,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ChestEvent extends JavaPlugin {
 
-	public FileConfiguration config;
+	FileConfiguration config;
 
-	public String lootTablesFolderName = "LootTables";
+	String lootTablesFolderName = "loot_tables";
 
-	public YamlConfiguration events;
-	public File eventsFile;
+	YamlConfiguration events;
+	File eventsFile;
 
 	List<ChestEventFile> listOfEvents;
 
 	int ChestEventID;
+	int refreshTime;
 
 	@Override
 	public void onEnable() {
@@ -36,11 +37,12 @@ public final class ChestEvent extends JavaPlugin {
 		
 		config = this.getConfig();
 		workWithConfig();
+		refreshTime = config.getInt("refreshTime");
 		
 		if (!new File(getDataFolder(), lootTablesFolderName).exists()) {
 			new File(getDataFolder(), lootTablesFolderName).mkdir();
-			getLogger().info("Create \"LootTables\" directory where you should put your custom LootTables.");
-			// getLogger().info("You can create custom LootTable in this generator: https://misode.github.io/loot-table/");
+			getLogger().info("Create \"loot_tables\" directory where you should put your custom LootTables.");
+			getLogger().info("You can create custom LootTable in this generator: https://misode.github.io/loot-table/");
 		}
 		
 
@@ -83,20 +85,6 @@ public final class ChestEvent extends JavaPlugin {
 				}
 			}
 		}, 0, config.getInt("RefreshTime"));
-
-		// if (CommodoreProvider.isSupported()) {
-		// 	Commodore commodore = CommodoreProvider.getCommodore(this);
-		// 	LiteralCommandNode<?> eventArguments;
-
-		// 	try {
-		// 		eventArguments = CommodoreFileReader.INSTANCE.parse(getResource("event.commodore"));
-		// 		commodore.register(eventCommand, eventArguments);
-		// 	}
-		// 	catch (IOException e) {
-		// 		System.out.println("time.commodore file not found.");
-		// 	}
-
-		// }
 	}
 
 	@Override
@@ -151,50 +139,25 @@ public final class ChestEvent extends JavaPlugin {
 			return;
 		}
 
-		System.out.println(defaultConfigConfiguration.getString("DefaultOptions.Date"));
+		// System.out.println(defaultConfigConfiguration.getString("DefaultOptions.Date"));
 
 		if(!new File(getDataFolder(), "config.yml").exists()) {
 			if (is == null) {
 				getLogger().warning("Cannot Create config.yml");
 				return;
 			}
-
-			// defaultConfigConfiguration
-			// config.addDefaults(defaultConfigConfiguration);
 			config.setDefaults(defaultConfigConfiguration);
-			// String defaultConfigContent = ExtendedInputStream.convertToString(is);
 			getLogger().info("Create \"config.yml\".");
 		}
 		else {
 			if (is == null) {
 				getLogger().warning("Cannot validate config.yml");
+				getLogger().warning("Loading default config configuration");
+				config = defaultConfigConfiguration;
 				return;
 			}
 		}
-		// config.options().header("date pattern \"dd.mm.yyyy\"\n" +
-		// 						"time pattern \"hh:mm\"\n" +
-		// 						"place your loot tables in \"loottable\" folder\n" +
-		// 						"when Secret value is set to true users will not get any message about the event\n" +
-		// 						"when ForceManualStart is set to true, the event should start send message to all op players, asking them to start the event\n" +
-		// 						"TimeOfReminder is in a minutes (set value to 0 to turn off the reminder)\n" +
-		// 						"TimeOfLock is in a seconds (set value to 0 to turn off the reminder)\n");
-		// config.addDefault("RadiusOfEvent", 1200);
-		// config.addDefault("TicksPerRefresh", 100);
-		// config.addDefault("Defaults.Date", "now");
-		// config.addDefault("Defaults.Time", "now");
-		// config.addDefault("Defaults.MainLootTable", "default_main_loot_table");
-		// config.addDefault("Defaults.ExtraLootTable", "default_extra_loot_table");
-		// config.addDefault("Defaults.NumberOfMainChests", 1);
-		// config.addDefault("Defaults.NumberOfExtraChests", 2);
-		// config.addDefault("Defaults.Secret", false);
-		// config.addDefault("Defaults.ForceManualStart", false);
-		// config.addDefault("Defaults.TimeOfReminder", 30);
-		// config.addDefault("Defaults.TimeOfLock", 300);
-		// config.addDefault("Defaults.ReminderMessage", "The Event {EventName} will start in {TimeOfReminder} minutes");
-		// config.addDefault("Defaults.EventMessage", "The Event {EventName} starts now! Chest are generated at coords {ChestsCords}. Good luck getting them ;)");
 		config.options().copyDefaults(true);
 		saveConfig();
-		// saveConfig();
-		// saveDefaultConfig();
 	}
 }

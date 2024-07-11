@@ -201,12 +201,6 @@ public class ChestEventTabExecutor implements CommandExecutor {
 						return true;
 					}
 				}
-				
-				// for (ChestEventFile chestEventFile : plugin.listOfEvents) {
-				// 	if (chestEventFile.Name == eventName) {
-						
-				// 	}
-				// }
 			
 		}
 		else if (subCommand.equals("remove")) {
